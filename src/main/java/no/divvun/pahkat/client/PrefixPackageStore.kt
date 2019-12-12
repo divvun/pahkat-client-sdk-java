@@ -43,7 +43,7 @@ class PrefixPackageStore(handle: Pointer): AbstractPrefixPackageStore(handle) {
     }
 }
 
-abstract class AbstractPrefixPackageStore internal constructor(private val handle: Pointer) : PackageStore<Unit> {
+abstract class AbstractPrefixPackageStore public constructor(private val handle: Pointer) : PackageStore<Unit> {
     private val gson = createGson()
 
     override fun config(): Result<StoreConfig> {
