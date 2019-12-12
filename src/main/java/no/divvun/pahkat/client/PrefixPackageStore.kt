@@ -25,7 +25,7 @@ internal fun Pointer.string(): String? {
     return s
 }
 
-class PrefixPackageStore private constructor(private val handle: Pointer) : PackageStore<Unit> {
+class PrefixPackageStore(handle: Pointer): AbstractPrefixPackageStore(handle) {
     companion object {
         fun open(path: String): Result<PrefixPackageStore> {
             val result = pahkat_client.pahkat_prefix_package_store_open(path, errorCallback)
@@ -38,6 +38,12 @@ class PrefixPackageStore private constructor(private val handle: Pointer) : Pack
         }
     }
 
+    override fun download(packageKey: PackageKey, delegate: PackageDownloadDelegate): Result<Unit> {
+        TODO("not implemented")
+    }
+}
+
+abstract class AbstractPrefixPackageStore internal constructor(private val handle: Pointer) : PackageStore<Unit> {
     private val gson = createGson()
 
     override fun config(): Result<StoreConfig> {
@@ -59,10 +65,7 @@ class PrefixPackageStore private constructor(private val handle: Pointer) : Pack
         }
     }
 
-
-    override fun download(packageKey: PackageKey, delegate: PackageDownloadDelegate): Result<Unit> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    abstract override fun download(packageKey: PackageKey, delegate: PackageDownloadDelegate): Result<Unit>
 
     override fun import(packageKey: PackageKey, installerPath: String): Result<String> {
         val string = pahkat_client.pahkat_prefix_package_store_import(handle, packageKey.toString(), installerPath, errorCallback)
