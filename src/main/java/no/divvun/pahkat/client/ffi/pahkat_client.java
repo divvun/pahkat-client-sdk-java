@@ -4,7 +4,6 @@ import com.sun.jna.Callback;
 import com.sun.jna.IntegerType;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import no.divvun.pahkat.client.PrefixPackageStore;
 
 public class pahkat_client {
     public static class uint32_t extends IntegerType {
@@ -30,8 +29,6 @@ public class pahkat_client {
     public interface TransactionProcessCallback extends Callback {
         byte invoke(uint32_t tag, String key, uint32_t event);
     }
-
-    // TODO: slice pointers might still actually be char pointers? fuu
 
     public static native Pointer pahkat_prefix_package_store_create(String path, ErrorCallback callback);
 
@@ -118,7 +115,7 @@ public class pahkat_client {
     public static native void pahkat_enable_logging();
 
     static {
-        Native.register("pahkat_client");
+        Native.register(pahkat_client.class, "pahkat_client");
         pahkat_enable_logging();
     }
 
