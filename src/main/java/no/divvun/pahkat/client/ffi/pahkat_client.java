@@ -17,6 +17,16 @@ public class pahkat_client {
         }
     }
 
+    public static class uint64_t extends IntegerType {
+        public uint64_t() {
+            this(0);
+        }
+
+        public uint64_t(int value) {
+            super(8, value, true);
+        }
+    }
+
     public interface TransactionProcessCallback extends Callback {
         byte invoke(uint32_t tag, String key, uint32_t event);
     }
@@ -53,8 +63,13 @@ public class pahkat_client {
 
 
     public static native Pointer pahkat_prefix_package_store_find_package_by_key(Pointer handle,
-                                                                                              String package_key,
-                                                                                              ErrorCallback callback);
+                                                                                 String package_key,
+                                                                                 ErrorCallback callback);
+
+    public static native SlicePointer.ByValue pahkat_prefix_package_store_download(Pointer handle,
+                                                                                   String packageKey,
+                                                                                   DownloadCallback progress,
+                                                                                   ErrorCallback callback);
 
     public static native Pointer pahkat_prefix_transaction_new(Pointer handle,
                                                                String actions,
@@ -76,19 +91,19 @@ public class pahkat_client {
                                                                ErrorCallback callback);
 
     public static native Pointer pahkat_store_config_ui_value(Pointer handle,
-                                                                           String key,
-                                                                           ErrorCallback callback);
+                                                              String key,
+                                                              ErrorCallback callback);
 
     public static native void pahkat_store_config_set_cache_base_url(Pointer handle,
                                                                      String path,
                                                                      ErrorCallback callback);
 
     public static native Pointer pahkat_store_config_cache_base_url(Pointer handle,
-                                                                                 ErrorCallback callback);
+                                                                    ErrorCallback callback);
 
     public static native Pointer pahkat_store_config_skipped_package(Pointer handle,
-                                                                                  String package_key,
-                                                                                  ErrorCallback callback);
+                                                                     String package_key,
+                                                                     ErrorCallback callback);
 
     public static native Pointer pahkat_store_config_repos(Pointer handle, ErrorCallback callback);
 

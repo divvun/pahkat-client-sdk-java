@@ -7,7 +7,7 @@ interface PackageStore<Target> {
     fun config(): Result<StoreConfig>
     fun repoIndexes(withStatuses: Boolean): Result<List<RepositoryIndex>>
     fun allStatuses(repo: RepoRecord, target: Target): Result<Map<String, PackageStatusResponse>>
-    fun download(packageKey: PackageKey, delegate: PackageDownloadDelegate): Result<Unit>
+    fun download(packageKey: PackageKey, delegate: PackageDownloadDelegate): Result<String?>
     fun import(packageKey: PackageKey, installerPath: String): Result<String>
 //    func install()
 //    func uninstall()

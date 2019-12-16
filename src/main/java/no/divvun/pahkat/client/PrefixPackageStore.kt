@@ -5,12 +5,14 @@ import arrow.core.flatMap
 import com.google.gson.Gson
 import com.sun.jna.Pointer
 import no.divvun.pahkat.client.delegate.PackageDownloadDelegate
+import no.divvun.pahkat.client.ffi.*
 import no.divvun.pahkat.client.ffi.assertNoError
 import no.divvun.pahkat.client.ffi.errorCallback
-import no.divvun.pahkat.client.ffi.pahkat_client
-import no.divvun.pahkat.client.ffi.Result
+import no.divvun.pahkat.client.handler.downloadProcessCallbacks
+import no.divvun.pahkat.client.handler.downloadProcessHandler
 import no.divvun.pahkat.client.handler.transactionProcessHandler
 import java.nio.charset.StandardCharsets
+import javax.management.RuntimeErrorException
 
 inline fun <reified T> Gson.fromJson(value: String): T {
     return this.fromJson(value, T::class.java)
@@ -25,7 +27,7 @@ internal fun Pointer.string(): String? {
     return s
 }
 
-class PrefixPackageStore(handle: Pointer): AbstractPrefixPackageStore(handle) {
+class PrefixPackageStore private constructor(private val handle: Pointer) : PackageStore<Unit> {
     companion object {
         fun open(path: String): Result<PrefixPackageStore> {
             val result = pahkat_client.pahkat_prefix_package_store_open(path, errorCallback)
@@ -38,12 +40,6 @@ class PrefixPackageStore(handle: Pointer): AbstractPrefixPackageStore(handle) {
         }
     }
 
-    override fun download(packageKey: PackageKey, delegate: PackageDownloadDelegate): Result<Unit> {
-        TODO("not implemented")
-    }
-}
-
-abstract class AbstractPrefixPackageStore public constructor(private val handle: Pointer) : PackageStore<Unit> {
     private val gson = createGson()
 
     override fun config(): Result<StoreConfig> {
@@ -65,7 +61,32 @@ abstract class AbstractPrefixPackageStore public constructor(private val handle:
         }
     }
 
-    abstract override fun download(packageKey: PackageKey, delegate: PackageDownloadDelegate): Result<Unit>
+    class DownloadCancelledException : Exception()
+
+    override fun download(packageKey: PackageKey, delegate: PackageDownloadDelegate): Result<String?> {
+        if (downloadProcessCallbacks.containsKey(packageKey)) {
+            return Either.Left(Exception("Package key already found in callbacks"))
+        }
+
+        val slice = pahkat_client.pahkat_prefix_package_store_download(
+            handle, packageKey.toString(), downloadProcessHandler, errorCallback)
+
+        downloadProcessCallbacks.remove(packageKey)
+
+        if (delegate.isDownloadCancelled) {
+            delegate.onDownloadCancel(packageKey)
+            return Either.Left(DownloadCancelledException())
+        }
+
+        return assertNoError({
+            val path = slice.decode()!!
+            delegate.onDownloadComplete(packageKey, path)
+            path
+        }, { message ->
+            delegate.onDownloadError(packageKey, PahkatClientException(message))
+            Either.right(null)
+        })
+    }
 
     override fun import(packageKey: PackageKey, installerPath: String): Result<String> {
         val string = pahkat_client.pahkat_prefix_package_store_import(handle, packageKey.toString(), installerPath, errorCallback)

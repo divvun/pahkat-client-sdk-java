@@ -13,11 +13,16 @@ internal val errorCallback = ErrorCallback { error ->
 class PahkatClientException(message: String?): Exception(message)
 
 internal fun <T> assertNoError(callback: () -> T): Result<T> {
-    if (lastError != null) {
-        val message = lastError
+    return lastError?.let {
         lastError = null
-        return Either.left(PahkatClientException(message))
-    }
+        Either.left(PahkatClientException(it))
+    } ?: Either.right(callback())
+}
 
-    return Either.right(callback())
+internal fun <T> assertNoError(callback: () -> T, errorCallback: ((String) -> Result<T>) = { Either.left(PahkatClientException(it)) }): Result<T> {
+    return lastError?.let {
+        val message = it
+        lastError = null
+        errorCallback(message)
+    } ?: Either.right(callback())
 }
