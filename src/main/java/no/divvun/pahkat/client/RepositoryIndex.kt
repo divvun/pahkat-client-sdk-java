@@ -39,7 +39,7 @@ class RepositoryIndex(
 //        return virtualsMeta.virtuals
 //    }
 //
-////    func url(for package: Package) -> URL {
+////    func url(for package: Package) -> URI {
 ////        return packagesMeta.base.appendingPathComponent(package.id)
 ////    }
 //
