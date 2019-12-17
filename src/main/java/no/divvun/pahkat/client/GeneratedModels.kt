@@ -29,14 +29,14 @@ internal fun createGson(): Gson {
         return df
     }
 
-    class EnumTypeAdapter<T>(private val type: T) : TypeAdapter<T>() where T: JsonEnum {
+    class EnumTypeAdapter<T>(private val type: Class<T>) : TypeAdapter<T>() where T: JsonEnum {
         override fun write(writer: JsonWriter, value: T) {
             writer.value(value.value)
         }
 
         override fun read(reader: JsonReader): T {
             val s = reader.nextString()
-            return type::class.java.enumConstants.first { it.value == s }
+            return type.enumConstants.first { it.value == s }
                 ?: throw Exception("Invalid value: $s")
         }
     }
@@ -75,7 +75,7 @@ internal fun createGson(): Gson {
             }
 
             @Suppress("UNCHECKED_CAST")
-            return EnumTypeAdapter(type.rawType as JsonEnum) as TypeAdapter<T>
+            return EnumTypeAdapter(type.type.javaClass as Class<JsonEnum>) as TypeAdapter<T>
         }
     }
 
