@@ -1,5 +1,6 @@
 package no.divvun.pahkat.client
 
+import com.google.gson.reflect.TypeToken
 import com.sun.jna.Pointer
 import no.divvun.pahkat.client.ffi.Result
 import no.divvun.pahkat.client.ffi.assertNoError
@@ -29,10 +30,10 @@ class StoreConfig internal constructor(private val handle: Pointer) {
     }
 
     @CheckReturnValue
-    fun repos(): Result<List<RepoRecord>> {
+    fun repos(): Result<Array<RepoRecord>> {
         val ptr = pahkat_client.pahkat_store_config_repos(handle, errorCallback)
         return assertNoError {
-            gson.fromJson<List<RepoRecord>>(ptr.string()!!)
+            gson.fromJson(ptr.string()!!, Array<RepoRecord>::class.java)
         }
     }
 
