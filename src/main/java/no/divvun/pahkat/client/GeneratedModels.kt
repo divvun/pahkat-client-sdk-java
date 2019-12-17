@@ -70,7 +70,7 @@ internal fun createGson(): Gson {
 
     class EnumTypeAdapterFactory : TypeAdapterFactory {
         override fun <T> create(gson: Gson, type: TypeToken<T>): TypeAdapter<T>? {
-            if (!type.rawType.isEnum || type.rawType.interfaces.contains(JsonEnum::class.java)) {
+            if (!type.rawType.interfaces.contains(JsonEnum::class.java)) {
                 return null
             }
 
