@@ -5,7 +5,7 @@ data class PackageStatusResponse(
     val target: InstallerTarget
 )
 
-enum class PackageInstallStatus(val value: Byte) {
+enum class PackageInstallStatus constructor(val value: Byte) {
     NotInstalled(0),
     UpToDate(1),
     RequiresUpdate(2),
@@ -17,7 +17,13 @@ enum class PackageInstallStatus(val value: Byte) {
     WrongInstallerType(-3),
     ParsingVersion(-4),
     InvalidInstallPath(-5),
-    InvalidMetadata(-6),
+    InvalidMetadata(-6);
+
+    companion object {
+        fun from(value: Byte): PackageInstallStatus? {
+            return PackageInstallStatus.values().firstOrNull { it.value == value }
+        }
+    }
 }
 
 enum class InstallerTarget {

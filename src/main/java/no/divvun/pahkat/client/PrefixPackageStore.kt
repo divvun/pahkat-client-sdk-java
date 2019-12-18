@@ -2,6 +2,7 @@ package no.divvun.pahkat.client
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.right
 import com.google.gson.Gson
 import com.sun.jna.Pointer
 import no.divvun.pahkat.client.delegate.PackageDownloadDelegate
@@ -47,15 +48,42 @@ class PrefixPackageStore private constructor(private val handle: Pointer) : Pack
 
     override fun repoIndexes(withStatuses: Boolean): Result<Array<RepositoryIndex>> {
         val ptr = pahkat_client.pahkat_prefix_package_store_repo_indexes(handle, errorCallback)
-        return assertNoError {
+        val result = assertNoError {
             gson.fromJson<Array<RepositoryIndex>>(ptr.string()!!)
         }
+
+        if (withStatuses) {
+            return result.flatMap { indexes ->
+                for (index in indexes) {
+                    val record = RepoRecord(index.meta.base, index.channel)
+                    index.statuses = when (val r = allStatuses(record)) {
+                        is Either.Left -> return@flatMap Either.left(r.a)
+                        is Either.Right -> r.b.mapKeys { PackageKey.from(index, it.key) }
+                    }
+                }
+
+                Either.right(indexes)
+            }
+        } else {
+            return result
+        }
+    }
+
+    fun allStatuses(repo: RepoRecord): Result<Map<String, PackageStatusResponse>> {
+        return allStatuses(repo, Unit)
     }
 
     override fun allStatuses(repo: RepoRecord, target: Unit): Result<Map<String, PackageStatusResponse>> {
         val ptr = pahkat_client.pahkat_prefix_package_store_all_statuses(handle, gson.toJson(repo), errorCallback)
         return assertNoError {
-            gson.fromJson<Map<String, PackageStatusResponse>>(ptr.string()!!)
+            val jsonString = ptr.string()!!
+            gson.fromJson<Map<String, Byte>>(jsonString)
+                .mapValues {
+                    PackageStatusResponse(
+                        PackageInstallStatus.from(it.value) ?: PackageInstallStatus.InvalidMetadata,
+                        InstallerTarget.System
+                    )
+                }
         }
     }
 

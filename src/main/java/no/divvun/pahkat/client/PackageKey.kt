@@ -25,6 +25,10 @@ class PackageKey private constructor(val url: String, val id: String, val channe
 
             return PackageKey(url, id, channel)
         }
+
+        fun from(index: RepositoryIndex, packageId: String): PackageKey {
+            return from("${index.meta.base}packages/${packageId}#${index.channel.value}")
+        }
     }
 
     override fun toString(): String {
