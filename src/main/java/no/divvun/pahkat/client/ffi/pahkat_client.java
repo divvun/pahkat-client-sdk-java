@@ -112,7 +112,7 @@ public class pahkat_client {
 
     public static native void pahkat_str_free(Pointer ptr);
 
-    public static native void pahkat_enable_logging();
+    public static native void pahkat_enable_logging(byte level);
 
     public static native void pahkat_android_init(String container_path, ErrorCallback callback);
 
