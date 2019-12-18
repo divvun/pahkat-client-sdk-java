@@ -7,6 +7,7 @@ class PackageKey private constructor(val url: String, val id: String, val channe
     companion object {
         fun from(urlString: String): PackageKey {
             val uri = URIBuilder(urlString)
+            val id = uri.pathSegments.last()
 
             val url = {
                 uri.fragment = null
@@ -20,7 +21,6 @@ class PackageKey private constructor(val url: String, val id: String, val channe
                 uri.toString()
             }()
 
-            val id = uri.pathSegments.last()
             val channel = uri.fragment ?: "stable"
 
             return PackageKey(url, id, channel)
