@@ -40,17 +40,15 @@ class PrefixPackageStore private constructor(private val handle: Pointer) : Pack
         }
     }
 
-    private val gson = createGson()
-
     override fun config(): Result<StoreConfig> {
         val ptr = pahkat_client.pahkat_prefix_package_store_config(handle, errorCallback)
         return assertNoError { StoreConfig(ptr) }
     }
 
-    override fun repoIndexes(withStatuses: Boolean): Result<List<RepositoryIndex>> {
+    override fun repoIndexes(withStatuses: Boolean): Result<Array<RepositoryIndex>> {
         val ptr = pahkat_client.pahkat_prefix_package_store_repo_indexes(handle, errorCallback)
         return assertNoError {
-            gson.fromJson<List<RepositoryIndex>>(ptr.string()!!)
+            gson.fromJson<Array<RepositoryIndex>>(ptr.string()!!)
         }
     }
 

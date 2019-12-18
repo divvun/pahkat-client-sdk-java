@@ -9,8 +9,6 @@ import no.divvun.pahkat.client.ffi.pahkat_client
 import javax.annotation.CheckReturnValue
 
 class StoreConfig internal constructor(private val handle: Pointer) {
-    private val gson = createGson()
-
     @CheckReturnValue
     fun configPath(): Result<String> {
         val slice = pahkat_client.pahkat_store_config_config_path(handle, errorCallback)

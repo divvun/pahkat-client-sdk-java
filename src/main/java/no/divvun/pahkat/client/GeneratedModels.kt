@@ -1,14 +1,14 @@
 @file:Suppress("MoveLambdaOutsideParentheses")
 package no.divvun.pahkat.client
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.TypeAdapter
-import com.google.gson.TypeAdapterFactory
+import com.google.gson.*
+import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import com.google.gson.internal.bind.JsonTreeReader
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import java.io.IOException
 import java.io.Serializable
 import java.net.URI
 import java.text.SimpleDateFormat
@@ -22,7 +22,7 @@ interface JsonEnum {
     val value: String
 }
 
-internal fun createGson(): Gson {
+private fun createGson(): Gson {
     fun createDateFormatter(pattern: String, tz: String): SimpleDateFormat {
         val df = SimpleDateFormat(pattern, Locale.ROOT)
         df.timeZone = TimeZone.getTimeZone(tz)
@@ -90,6 +90,8 @@ internal fun createGson(): Gson {
         .create()
 }
 
+internal val gson = createGson()
+
 data class Repository(
     @SerializedName("@type")
     val _type: _Type?,
@@ -148,9 +150,32 @@ data class Packages(
     }
 }
 
+class InstallerAdapter: TypeAdapter<Installer>() {
+    override fun write(writer: JsonWriter, value: Installer) {
+        when (value) {
+            is Installer.MacOS -> writer.jsonValue(gson.toJson(value.value))
+            is Installer.Windows -> writer.jsonValue(gson.toJson(value.value))
+            is Installer.Tarball -> writer.jsonValue(gson.toJson(value.value))
+        }
+    }
+
+    override fun read(reader: JsonReader): Installer {
+        val tree = JsonParser.parseReader(reader)
+        val ty = tree.asJsonObject.get("@type").asString
+
+        return when (ty) {
+            "MacOSInstaller" -> Installer.MacOS(gson.fromJson(tree, MacOsInstaller::class.java))
+            "WindowsInstaller" -> Installer.Windows(gson.fromJson(tree, WindowsInstaller::class.java))
+            "TarballInstaller" -> Installer.Tarball(gson.fromJson(tree, TarballInstaller::class.java))
+            else -> throw IOException("Invalid type for InstallerAdapter: $ty")
+        }
+    }
+}
+
+@JsonAdapter(InstallerAdapter::class)
 sealed class Installer {
     data class MacOS(val value: MacOsInstaller) : Installer()
-    data class Prefix(val value: PrefixInstaller) : Installer()
+    data class Tarball(val value: TarballInstaller) : Installer()
     data class Windows(val value: WindowsInstaller) : Installer()
 }
 
@@ -175,7 +200,7 @@ data class Package(
     }
 }
 
-data class PrefixInstaller(
+data class TarballInstaller(
     @SerializedName("@type")
     val _type: _Type?,
     val url: @Format("uri") URI,
@@ -183,7 +208,7 @@ data class PrefixInstaller(
     val installedSize: @Format("uint64") Long
 ) : Serializable {
     enum class _Type(override val value: String): JsonEnum {
-        PREFIX_INSTALLER("PrefixInstaller");
+        TARBALL_INSTALLER("TarballInstaller");
 
         override fun toString() = value
     }

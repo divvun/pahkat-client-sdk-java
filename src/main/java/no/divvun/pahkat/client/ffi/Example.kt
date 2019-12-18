@@ -16,9 +16,12 @@ object Example {
         config.setUiSetting("hello", "world")
         println(config.getUiSetting("hello"))
 
-        config.setRepos(listOf(RepoRecord(URI.create("https://x.brendan.so/mobile-repo"), Repository.Channel.STABLE)))
+        config.setRepos(listOf(RepoRecord(URI.create("https://x.brendan.so/mobile-repo"), Repository.Channel.NIGHTLY)))
+        packageStore.refreshRepos()
 
         val repos = packageStore.repoIndexes(false).orNull()
-        println(repos)
+        println(repos?.toList().toString())
+        
+        config.repos()
     }
 }

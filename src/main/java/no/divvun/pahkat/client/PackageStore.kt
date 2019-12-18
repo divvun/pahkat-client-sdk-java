@@ -8,7 +8,7 @@ interface PackageStore<Target> {
     @CheckReturnValue
     fun config(): Result<StoreConfig>
     @CheckReturnValue
-    fun repoIndexes(withStatuses: Boolean): Result<List<RepositoryIndex>>
+    fun repoIndexes(withStatuses: Boolean): Result<Array<RepositoryIndex>>
     @CheckReturnValue
     fun allStatuses(repo: RepoRecord, target: Target): Result<Map<String, PackageStatusResponse>>
     @CheckReturnValue

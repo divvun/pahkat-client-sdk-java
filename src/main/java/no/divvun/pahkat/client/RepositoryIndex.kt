@@ -1,9 +1,13 @@
 package no.divvun.pahkat.client
 
-class RepositoryIndex(
+import com.google.gson.annotations.SerializedName
+
+data class RepositoryIndex(
     val meta: Repository,
     val channel: Repository.Channel,
+    @SerializedName("packages")
     private val packagesMeta: Packages,
+    @SerializedName("virtuals")
     private val virtualsMeta: Virtuals
 ) {
     var statuses: Map<PackageKey, PackageStatusResponse> = emptyMap()
