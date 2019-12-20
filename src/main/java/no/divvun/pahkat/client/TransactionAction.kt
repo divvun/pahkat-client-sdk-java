@@ -11,18 +11,24 @@ enum class PackageActionType(val value: String): Serializable {
     Uninstall("uninstall")
 }
 
-data class TransactionAction<Target: Serializable>(
+data class TransactionAction<Target>(
     val action: PackageActionType,
     val id: PackageKey,
     val target: Target
-): Serializable {
+) {
     companion object {
-        fun <Target: Serializable> install(packageKey: PackageKey, target: Target): TransactionAction<Target> {
+        fun <Target> install(packageKey: PackageKey, target: Target): TransactionAction<Target> {
             return TransactionAction(PackageActionType.Install, packageKey, target)
         }
 
-        fun <Target: Serializable> uninstall(packageKey: PackageKey, target: Target): TransactionAction<Target> {
+        fun <Target> uninstall(packageKey: PackageKey, target: Target): TransactionAction<Target> {
             return TransactionAction(PackageActionType.Uninstall, packageKey, target)
         }
+
+        fun <Target> fromJson(json: String): TransactionAction<Target> {
+            return gson.fromJson<TransactionAction<Target>>(json)
+        }
     }
+
+    override fun toString(): String = gson.toJson(this)
 }
