@@ -94,6 +94,8 @@ class PrefixPackageStore private constructor(private val handle: Pointer) : Pack
             return Either.Left(Exception("Package key already found in callbacks"))
         }
 
+        downloadProcessCallbacks[packageKey] = delegate
+
         val slice = pahkat_client.pahkat_prefix_package_store_download(
             handle, packageKey.toString(), downloadProcessHandler, errorCallback)
 

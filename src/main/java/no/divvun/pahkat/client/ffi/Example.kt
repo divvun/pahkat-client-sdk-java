@@ -2,10 +2,8 @@ package no.divvun.pahkat.client.ffi
 
 import arrow.core.Either
 import arrow.core.orNull
-import no.divvun.pahkat.client.PahkatClient
-import no.divvun.pahkat.client.PrefixPackageStore
-import no.divvun.pahkat.client.RepoRecord
-import no.divvun.pahkat.client.Repository
+import no.divvun.pahkat.client.*
+import no.divvun.pahkat.client.delegate.PackageDownloadDelegate
 import java.net.URI
 
 object Example {
@@ -32,5 +30,31 @@ object Example {
         println(repos.toList().first().statuses.toString())
 
         config.repos()
+        val key = PackageKey.from(repos.first(), "speller-se")
+        val key2 = PackageKey.from(repos.first(), "speller-se")
+
+        assert(key == key2)
+
+        packageStore.download(key, object : PackageDownloadDelegate {
+            override val isDownloadCancelled: Boolean
+                get() = false
+
+            override fun onDownloadProgress(packageKey: PackageKey, current: Long, maximum: Long) {
+                println("progress: $packageKey $current/$maximum")
+            }
+
+            override fun onDownloadComplete(packageKey: PackageKey, path: String) {
+                println("complete: $packageKey $path")
+            }
+
+            override fun onDownloadCancel(packageKey: PackageKey) {
+                println("cancel: $packageKey")
+            }
+
+            override fun onDownloadError(packageKey: PackageKey, error: java.lang.Exception) {
+                println("error: $packageKey $error")
+            }
+
+        })
     }
 }

@@ -13,7 +13,6 @@ internal val downloadProcessHandler: DownloadCallback = object : DownloadCallbac
         val total = totalRaw.toLong()
 
         val packageKey = PackageKey.from(packageId)
-
         val delegate = downloadProcessCallbacks[packageKey] ?: return false
 
         delegate.onDownloadProgress(packageKey, current, total)

@@ -3,7 +3,7 @@ package no.divvun.pahkat.client
 import org.apache.hc.core5.net.URIBuilder
 import java.net.URI
 
-class PackageKey private constructor(val url: String, val id: String, val channel: String) {
+data class PackageKey private constructor(val url: String, val id: String, val channel: String) {
     companion object {
         fun from(urlString: String): PackageKey {
             val uri = URIBuilder(urlString)
