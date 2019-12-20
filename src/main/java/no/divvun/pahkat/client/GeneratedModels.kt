@@ -10,6 +10,7 @@ import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import java.io.IOException
 import java.io.Serializable
+import java.lang.reflect.Method
 import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
@@ -18,10 +19,6 @@ import java.util.*
 @MustBeDocumented
 annotation class Format(val value: String)
 
-interface JsonEnum {
-    val value: String
-}
-
 private fun createGson(): Gson {
     fun createDateFormatter(pattern: String, tz: String): SimpleDateFormat {
         val df = SimpleDateFormat(pattern, Locale.ROOT)
@@ -29,9 +26,14 @@ private fun createGson(): Gson {
         return df
     }
 
-    class EnumTypeAdapter<T>(private val type: TypeToken<T>) : TypeAdapter<T>() where T: JsonEnum {
+    class EnumTypeAdapter<T>(private val type: TypeToken<T>, private val valueGetter: Method) : TypeAdapter<T>() {
         override fun write(writer: JsonWriter, value: T) {
-            writer.value(value.value)
+            when (val v = valueGetter.invoke(value)) {
+                is Boolean -> writer.value(v)
+                is String -> writer.value(v)
+                is Number -> writer.value(v)
+                else -> writer.nullValue()
+            }
         }
 
         override fun read(reader: JsonReader): T {
@@ -40,7 +42,7 @@ private fun createGson(): Gson {
             @Suppress("UNCHECKED_CAST")
             val constants = type.rawType.enumConstants as Array<T>
 
-            return constants.firstOrNull { it.value == s }
+            return constants.firstOrNull { (valueGetter.invoke(it) as? String) == s }
                 ?: throw Exception("Invalid value: $s")
         }
     }
@@ -74,16 +76,24 @@ private fun createGson(): Gson {
 
     class EnumTypeAdapterFactory : TypeAdapterFactory {
         override fun <T> create(gson: Gson, type: TypeToken<T>): TypeAdapter<T>? {
-            if (!type.rawType.interfaces.contains(JsonEnum::class.java)) {
+            if (!(type.rawType.isEnum && (type.rawType.declaredConstructors.firstOrNull()?.parameterCount ?: 0) == 3)) {
                 return null
             }
 
-            @Suppress("UNCHECKED_CAST")
-            return EnumTypeAdapter(type as TypeToken<JsonEnum>) as TypeAdapter<T>
+            val method = type.rawType.methods
+                .firstOrNull { it.declaringClass == type.type && !listOf("toString", "values", "valueOf").contains(it.name) }
+                ?: return null
+
+            return EnumTypeAdapter(type, method)
         }
     }
 
     return GsonBuilder()
+        .serializeNulls()
+        .registerTypeAdapter(Unit::class.java, object : TypeAdapter<Unit>() {
+            override fun write(writer: JsonWriter?, value: Unit?) { writer?.nullValue() }
+            override fun read(`in`: JsonReader?) = Unit
+        })
         .registerTypeAdapterFactory(EnumTypeAdapterFactory())
         .registerTypeAdapterFactory(DateAdapterFactory())
         .setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -108,20 +118,20 @@ data class Repository(
         val url: @Format("uri") URI?
     ) : Serializable {
     }
-    enum class _Type(override val value: String): JsonEnum {
+    enum class _Type(val value: String) {
         REPOSITORY("Repository");
 
         override fun toString() = value
     }
 
-    enum class PrimaryFilter(override val value: String): JsonEnum {
+    enum class PrimaryFilter(val value: String) {
         CATEGORY("category"),
         LANGUAGE("language");
 
         override fun toString() = value
     }
 
-    enum class Channel(override val value: String): JsonEnum {
+    enum class Channel(val value: String) {
         STABLE("stable"),
         BETA("beta"),
         ALPHA("alpha"),
@@ -143,7 +153,7 @@ data class Packages(
     val _type: _Type?,
     val packages: Map<String, Package>
 ) : Serializable {
-    enum class _Type(override val value: String): JsonEnum {
+    enum class _Type(val value: String) {
         PACKAGES("Packages");
 
         override fun toString() = value
@@ -193,7 +203,7 @@ data class Package(
     val virtualDependencies: Map<String, String>,
     val installer: Installer
 ) : Serializable {
-    enum class _Type(override val value: String): JsonEnum {
+    enum class _Type(val value: String) {
         PACKAGE("Package");
 
         override fun toString() = value
@@ -207,7 +217,7 @@ data class TarballInstaller(
     val size: @Format("uint64") Long,
     val installedSize: @Format("uint64") Long
 ) : Serializable {
-    enum class _Type(override val value: String): JsonEnum {
+    enum class _Type(val value: String) {
         TARBALL_INSTALLER("TarballInstaller");
 
         override fun toString() = value
@@ -227,13 +237,13 @@ data class WindowsInstaller(
     val size: @Format("uint64") Long,
     val installedSize: @Format("uint64") Long
 ) : Serializable {
-    enum class _Type(override val value: String): JsonEnum {
+    enum class _Type(val value: String) {
         WINDOWS_INSTALLER("WindowsInstaller");
 
         override fun toString() = value
     }
 
-    enum class Type(override val value: String): JsonEnum {
+    enum class Type(val value: String) {
         MSI("msi"),
         INNO("inno"),
         NSIS("nsis");
@@ -253,7 +263,7 @@ data class MacOsInstaller(
     val size: @Format("uint64") Long,
     val installedSize: @Format("uint64") Long
 ) : Serializable {
-    enum class _Type(override val value: String): JsonEnum {
+    enum class _Type(val value: String) {
         MAC_OS_INSTALLER("MacOSInstaller");
 
         override fun toString() = value
@@ -265,7 +275,7 @@ data class Virtuals(
     val _type: _Type?,
     val virtuals: Map<String, Virtual>
 ) : Serializable {
-    enum class _Type(override val value: String): JsonEnum {
+    enum class _Type(val value: String) {
         VIRTUALS("Virtuals");
 
         override fun toString() = value
@@ -283,7 +293,7 @@ data class Virtual(
     val url: @Format("uri") URI,
     val target: VirtualTarget
 ) : Serializable {
-    enum class _Type(override val value: String): JsonEnum {
+    enum class _Type(val value: String) {
         VIRTUAL("Virtual");
 
         override fun toString() = value
@@ -294,7 +304,7 @@ class VirtualTarget(
 ) : Serializable {
 }
 
-enum class Targets(override val value: String): JsonEnum {
+enum class Targets(val value: String) {
     SYSTEM("system"),
     USER("user");
 

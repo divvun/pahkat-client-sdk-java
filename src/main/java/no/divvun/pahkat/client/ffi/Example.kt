@@ -4,9 +4,44 @@ import arrow.core.Either
 import arrow.core.orNull
 import no.divvun.pahkat.client.*
 import no.divvun.pahkat.client.delegate.PackageDownloadDelegate
+import no.divvun.pahkat.client.delegate.PackageTransactionDelegate
 import java.net.URI
 
 object Example {
+    fun runTx(tx: PackageTransaction<Unit>) {
+        val delegate = object : PackageTransactionDelegate {
+            override fun isTransactionCancelled(id: Long): Boolean {
+                return false
+            }
+
+            override fun onTransactionInstall(id: Long, packageKey: PackageKey) {
+                println("install")
+            }
+
+            override fun onTransactionUninstall(id: Long, packageKey: PackageKey) {
+                println("uninstall")
+            }
+
+            override fun onTransactionCompleted(id: Long) {
+                println("completed")
+            }
+
+            override fun onTransactionCancelled(id: Long) {
+                println("cancelled")
+            }
+
+            override fun onTransactionError(id: Long, packageKey: PackageKey?, error: java.lang.Exception?) {
+                println("error: $error")
+            }
+
+            override fun onTransactionUnknownEvent(id: Long, packageKey: PackageKey, event: Long) {
+                println("unknown event: $event")
+            }
+        }
+
+        tx.process(delegate)
+    }
+
     fun run() {
         PahkatClient.enableLogging(PahkatClient.LogLevel.TRACE)
 
@@ -45,6 +80,11 @@ object Example {
 
             override fun onDownloadComplete(packageKey: PackageKey, path: String) {
                 println("complete: $packageKey $path")
+
+                when (val r = packageStore.transaction(listOf(TransactionAction.install(key, Unit)))) {
+                    is Either.Left -> println(r.a)
+                    is Either.Right -> runTx(r.b)
+                }
             }
 
             override fun onDownloadCancel(packageKey: PackageKey) {
@@ -54,7 +94,6 @@ object Example {
             override fun onDownloadError(packageKey: PackageKey, error: java.lang.Exception) {
                 println("error: $packageKey $error")
             }
-
         })
     }
 }

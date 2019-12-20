@@ -2,18 +2,13 @@ package no.divvun.pahkat.client
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.right
 import com.google.gson.Gson
 import com.sun.jna.Pointer
 import no.divvun.pahkat.client.delegate.PackageDownloadDelegate
 import no.divvun.pahkat.client.ffi.*
-import no.divvun.pahkat.client.ffi.assertNoError
-import no.divvun.pahkat.client.ffi.errorCallback
 import no.divvun.pahkat.client.handler.downloadProcessCallbacks
 import no.divvun.pahkat.client.handler.downloadProcessHandler
 import no.divvun.pahkat.client.handler.transactionProcessHandler
-import java.nio.charset.StandardCharsets
-import javax.management.RuntimeErrorException
 
 inline fun <reified T> Gson.fromJson(value: String): T {
     return this.fromJson(value, T::class.java)
@@ -156,7 +151,9 @@ class PrefixPackageStore private constructor(private val handle: Pointer) : Pack
     }
 
     override fun transaction(actions: List<TransactionAction<Unit>>): Result<PackageTransaction<Unit>> {
-        val ptr = pahkat_client.pahkat_prefix_transaction_new(handle, gson.toJson(actions), errorCallback)
+        val actionsJson = gson.toJson(actions)
+        println(actionsJson)
+        val ptr = pahkat_client.pahkat_prefix_transaction_new(handle, actionsJson, errorCallback)
         return assertNoError {
             PackageTransaction(
                 ptr,

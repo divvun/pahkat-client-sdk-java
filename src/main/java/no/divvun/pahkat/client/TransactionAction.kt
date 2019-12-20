@@ -1,5 +1,10 @@
 package no.divvun.pahkat.client
 
+import com.google.gson.TypeAdapter
+import com.google.gson.annotations.JsonAdapter
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
+
 enum class PackageActionType(val value: String) {
     Install("install"),
     Uninstall("uninstall")
