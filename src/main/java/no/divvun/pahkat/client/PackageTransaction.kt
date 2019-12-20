@@ -5,18 +5,23 @@ import com.sun.jna.Pointer
 import no.divvun.pahkat.client.delegate.PackageTransactionDelegate
 import no.divvun.pahkat.client.ffi.assertNoError
 import no.divvun.pahkat.client.handler.transactionProcessCallbacks
+import java.io.Serializable
 
 private var nextTxId = 1L
 
 class PackageTransaction<Target> internal constructor(
     private val handle: Pointer,
-    private val actions: List<TransactionAction<Target>>,
+    val actions: List<TransactionAction<Target>>,
     private val processFunc: (Pointer, Long) -> Unit
-) {
-    fun process(delegate: PackageTransactionDelegate) {
-        val id = nextTxId
-        nextTxId += 1
+): Serializable {
+    val id = nextTxId
 
+    // Increment txId each time a transaction is created
+    init {
+        nextTxId += 1
+    }
+
+    fun process(delegate: PackageTransactionDelegate) {
         transactionProcessCallbacks[id] = delegate
         processFunc(handle, id)
 
