@@ -114,7 +114,7 @@ public class pahkat_client {
 
     public static native void pahkat_enable_logging(byte level);
 
-//    public static native void pahkat_android_init(String container_path, ErrorCallback callback);
+    public static native void pahkat_android_init(String container_path, ErrorCallback callback);
 
     static {
         Native.register(pahkat_client.class, "pahkat_client");

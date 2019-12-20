@@ -23,7 +23,7 @@ object PahkatClient {
     object Android {
         @CheckReturnValue
         fun init(containerPath: String): Result<Unit> {
-//            pahkat_client.pahkat_android_init(containerPath, errorCallback)
+            pahkat_client.pahkat_android_init(containerPath, errorCallback)
             return assertNoError { }
         }
     }
