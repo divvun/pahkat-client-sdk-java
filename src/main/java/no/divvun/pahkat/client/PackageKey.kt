@@ -5,8 +5,9 @@ import com.google.gson.annotations.JsonAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import org.apache.hc.core5.net.URIBuilder
+import java.io.Serializable
 
-class PackageKeyAdapter: TypeAdapter<PackageKey>() {
+class PackageKeyAdapter : TypeAdapter<PackageKey>() {
     override fun write(writer: JsonWriter, value: PackageKey?) {
         if (value == null) {
             writer.nullValue()
@@ -23,7 +24,7 @@ class PackageKeyAdapter: TypeAdapter<PackageKey>() {
 }
 
 @JsonAdapter(PackageKeyAdapter::class)
-data class PackageKey internal constructor(val url: String, val id: String, val channel: String) {
+data class PackageKey internal constructor(val url: String, val id: String, val channel: String) : Serializable {
     companion object {
         fun from(urlString: String): PackageKey {
             val uri = URIBuilder(urlString)
