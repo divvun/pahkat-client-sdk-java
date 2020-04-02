@@ -21,7 +21,7 @@ enum class PackageInstallStatus constructor(val value: Byte) {
 
     companion object {
         fun from(value: Byte): PackageInstallStatus? {
-            return PackageInstallStatus.values().firstOrNull { it.value == value }
+            return values().firstOrNull { it.value == value }
         }
     }
 }

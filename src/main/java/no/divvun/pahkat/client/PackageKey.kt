@@ -4,6 +4,7 @@ import com.google.gson.TypeAdapter
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import org.apache.hc.core5.http.NameValuePair
 import org.apache.hc.core5.net.URIBuilder
 import java.io.Serializable
 
@@ -23,16 +24,37 @@ class PackageKeyAdapter : TypeAdapter<PackageKey>() {
     }
 }
 
+data class PackageKeyParams(
+    val channel: String? = null,
+    val platform: String? = null,
+    val version: String? = null,
+    val arch: String? = null
+)
+
 @JsonAdapter(PackageKeyAdapter::class)
-data class PackageKey internal constructor(val url: String, val id: String, val channel: String) : Serializable {
+data class PackageKey internal constructor(
+    val repositoryUrl: String,
+    val id: String,
+    val params: PackageKeyParams
+) : Serializable {
     companion object {
         fun from(urlString: String): PackageKey {
             val uri = URIBuilder(urlString)
-            val channel = uri.fragment ?: "stable"
             val id = uri.pathSegments.last()
 
-            val url = {
+            val params = uri.queryParams.fold(PackageKeyParams(), { acc, cur ->
+                when (cur.name) {
+                    "channel" -> acc.copy(channel = cur.value)
+                    "platform" -> acc.copy(platform = cur.value)
+                    "version" -> acc.copy(version = cur.value)
+                    "arch" -> acc.copy(arch = cur.value)
+                    else -> acc
+                }
+            })
+
+            val repoUrl = {
                 uri.fragment = null
+                uri.clearParameters()
 
                 // Pop last two segments
                 val segments = uri.pathSegments
@@ -43,15 +65,27 @@ data class PackageKey internal constructor(val url: String, val id: String, val 
                 uri.toString()
             }()
 
-            return PackageKey(url, id, channel)
-        }
-
-        fun from(index: RepositoryIndex, packageId: String): PackageKey {
-            return from("${index.meta.base}packages/${packageId}#${index.channel.value}")
+            return PackageKey(repoUrl, id, params)
         }
     }
 
-    override fun toString(): String {
-        return "${url}/packages/${id}#${channel}"
+    override fun toString() = toString(true)
+
+    fun toString(withQueryParams: Boolean): String {
+        val uri = URIBuilder(repositoryUrl)
+
+        val segments = uri.pathSegments ?: mutableListOf()
+        segments.add("packages")
+        segments.add(id)
+        uri.pathSegments = segments
+
+        if (withQueryParams) {
+            params.channel?.let { uri.setParameter("platform", it) }
+            params.platform?.let { uri.setParameter("platform", it) }
+            params.version?.let { uri.setParameter("version", it) }
+            params.arch?.let { uri.setParameter("arch", it) }
+        }
+
+        return uri.build().toString()
     }
 }

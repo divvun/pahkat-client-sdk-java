@@ -27,21 +27,21 @@ public class pahkat_client {
     }
 
     public interface TransactionProcessCallback extends Callback {
-        byte invoke(uint32_t tag, String key, uint32_t event);
+        byte invoke(uint32_t tag, SlicePointer.ByValue key, uint32_t event);
     }
 
-    public static native Pointer pahkat_prefix_package_store_create(String path, ErrorCallback callback);
+    public static native Pointer pahkat_prefix_package_store_create(SlicePointer.ByValue path, ErrorCallback callback);
 
-    public static native Pointer pahkat_prefix_package_store_open(String path, ErrorCallback callback);
+    public static native Pointer pahkat_prefix_package_store_open(SlicePointer.ByValue path, ErrorCallback callback);
 
-    public static native byte pahkat_prefix_package_store_status(Pointer handle, String package_key, ErrorCallback callback);
+    public static native byte pahkat_prefix_package_store_status(Pointer handle, SlicePointer.ByValue package_key, ErrorCallback callback);
 
-    public static native Pointer pahkat_prefix_package_store_all_statuses(Pointer handle, String repo_record, ErrorCallback callback);
+    public static native SlicePointer.ByValue pahkat_prefix_package_store_all_statuses(Pointer handle, SlicePointer repo_record, ErrorCallback callback);
 
     public static native SlicePointer.ByValue pahkat_prefix_package_store_import(
             Pointer handle,
-            String package_key,
-            String installer_path,
+            SlicePointer package_key,
+            SlicePointer installer_path,
             ErrorCallback callback);
 
     public static native void pahkat_prefix_package_store_clear_cache(
@@ -54,25 +54,25 @@ public class pahkat_client {
             Pointer handle, ErrorCallback callback);
 
 
-    public static native Pointer pahkat_prefix_package_store_repo_indexes(Pointer handle, ErrorCallback callback);
+//    public static native Pointer pahkat_prefix_package_store_repo_indexes(Pointer handle, ErrorCallback callback);
 
-    public static native Pointer pahkat_prefix_package_store_config(Pointer handle, ErrorCallback callback);
+//    public static native Pointer pahkat_prefix_package_store_config(Pointer handle, ErrorCallback callback);
 
 
-    public static native Pointer pahkat_prefix_package_store_find_package_by_key(Pointer handle,
-                                                                                 String package_key,
+    public static native SlicePointer.ByValue pahkat_prefix_package_store_find_package_by_key(Pointer handle,
+                                                                                 SlicePointer.ByValue package_key,
                                                                                  ErrorCallback callback);
 
     public static native SlicePointer.ByValue pahkat_prefix_package_store_download(Pointer handle,
-                                                                                   String packageKey,
+                                                                                   SlicePointer.ByValue packageKey,
                                                                                    DownloadCallback progress,
                                                                                    ErrorCallback callback);
 
     public static native Pointer pahkat_prefix_transaction_new(Pointer handle,
-                                                               String actions,
+                                                               SlicePointer.ByValue actions,
                                                                ErrorCallback callback);
 
-    public static native Pointer pahkat_prefix_transaction_actions(Pointer handle, ErrorCallback callback);
+//    public static native Pointer pahkat_prefix_transaction_actions(Pointer handle, ErrorCallback callback);
 
     public static native void pahkat_prefix_transaction_process(Pointer handle,
                                                                 uint32_t tag,
@@ -80,47 +80,47 @@ public class pahkat_client {
                                                                 ErrorCallback callback);
 
     // StoreConfig functions
-    public static native SlicePointer.ByValue pahkat_store_config_config_path(Pointer handle, ErrorCallback callback);
+//    public static native SlicePointer.ByValue pahkat_store_config_config_path(Pointer handle, ErrorCallback callback);
 
-    public static native void pahkat_store_config_set_ui_value(Pointer handle,
-                                                               String key,
-                                                               String value,
-                                                               ErrorCallback callback);
+//    public static native void pahkat_store_config_set_ui_value(Pointer handle,
+//                                                               SlicePointer.ByValue key,
+//                                                               SlicePointer.ByValue value,
+//                                                               ErrorCallback callback);
+//
+//    public static native Pointer pahkat_store_config_ui_value(Pointer handle,
+//                                                              SlicePointer.ByValue key,
+//                                                              ErrorCallback callback);
+//
+//    public static native void pahkat_store_config_set_cache_base_url(Pointer handle,
+//                                                                     SlicePointer.ByValue path,
+//                                                                     ErrorCallback callback);
+//
+//    public static native Pointer pahkat_store_config_cache_base_url(Pointer handle,
+//                                                                    ErrorCallback callback);
+//
+//    public static native Pointer pahkat_store_config_skipped_package(Pointer handle,
+//                                                                     SlicePointer.ByValue package_key,
+//                                                                     ErrorCallback callback);
 
-    public static native Pointer pahkat_store_config_ui_value(Pointer handle,
-                                                              String key,
-                                                              ErrorCallback callback);
+//    public static native Pointer pahkat_store_config_repos(Pointer handle, ErrorCallback callback);
+//
+//    public static native void pahkat_store_config_set_repos(Pointer handle,
+//                                                            SlicePointer.ByValue repos,
+//                                                            ErrorCallback callback);
+//
+//    // General utilities
 
-    public static native void pahkat_store_config_set_cache_base_url(Pointer handle,
-                                                                     String path,
-                                                                     ErrorCallback callback);
-
-    public static native Pointer pahkat_store_config_cache_base_url(Pointer handle,
-                                                                    ErrorCallback callback);
-
-    public static native Pointer pahkat_store_config_skipped_package(Pointer handle,
-                                                                     String package_key,
-                                                                     ErrorCallback callback);
-
-    public static native Pointer pahkat_store_config_repos(Pointer handle, ErrorCallback callback);
-
-    public static native void pahkat_store_config_set_repos(Pointer handle,
-                                                            String repos,
-                                                            ErrorCallback callback);
-
-    // General utilities
-
-    public static native void pahkat_str_free(Pointer ptr);
+    public static native void pahkat_str_free(SlicePointer.ByValue ptr);
 
     public static native void pahkat_enable_logging(byte level);
 
-    public static native void pahkat_android_init(String container_path, ErrorCallback callback);
+//    public static native void pahkat_android_init(SlicePointer.ByValue container_path, ErrorCallback callback);
 
     static {
         Native.register(pahkat_client.class, "pahkat_client");
     }
 
-    public static void main(String[] args) {
-        Example.INSTANCE.run();
-    }
+//    public static void main(SlicePointer.ByValue[] args) {
+//        Example.INSTANCE.run();
+//    }
 }
