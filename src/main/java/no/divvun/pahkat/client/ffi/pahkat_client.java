@@ -34,6 +34,8 @@ public class pahkat_client {
 
     public static native Pointer pahkat_prefix_package_store_open(SlicePointer.ByValue path, ErrorCallback callback);
 
+    public static native Pointer pahkat_prefix_package_store_open_or_create(SlicePointer.ByValue path, ErrorCallback callback);
+
     public static native byte pahkat_prefix_package_store_status(Pointer handle, SlicePointer.ByValue package_key, ErrorCallback callback);
 
     public static native SlicePointer.ByValue pahkat_prefix_package_store_all_statuses(Pointer handle, SlicePointer repo_record, ErrorCallback callback);
@@ -56,7 +58,7 @@ public class pahkat_client {
 
 //    public static native Pointer pahkat_prefix_package_store_repo_indexes(Pointer handle, ErrorCallback callback);
 
-//    public static native Pointer pahkat_prefix_package_store_config(Pointer handle, ErrorCallback callback);
+    public static native Pointer pahkat_prefix_package_store_config(Pointer handle, ErrorCallback callback);
 
 
     public static native SlicePointer.ByValue pahkat_prefix_package_store_find_package_by_key(Pointer handle,
@@ -80,34 +82,15 @@ public class pahkat_client {
                                                                 ErrorCallback callback);
 
     // StoreConfig functions
-//    public static native SlicePointer.ByValue pahkat_store_config_config_path(Pointer handle, ErrorCallback callback);
 
-//    public static native void pahkat_store_config_set_ui_value(Pointer handle,
-//                                                               SlicePointer.ByValue key,
-//                                                               SlicePointer.ByValue value,
-//                                                               ErrorCallback callback);
-//
-//    public static native Pointer pahkat_store_config_ui_value(Pointer handle,
-//                                                              SlicePointer.ByValue key,
-//                                                              ErrorCallback callback);
-//
-//    public static native void pahkat_store_config_set_cache_base_url(Pointer handle,
-//                                                                     SlicePointer.ByValue path,
-//                                                                     ErrorCallback callback);
-//
-//    public static native Pointer pahkat_store_config_cache_base_url(Pointer handle,
-//                                                                    ErrorCallback callback);
-//
-//    public static native Pointer pahkat_store_config_skipped_package(Pointer handle,
-//                                                                     SlicePointer.ByValue package_key,
-//                                                                     ErrorCallback callback);
+    public static native SlicePointer.ByValue pahkat_config_settings_config_dir(Pointer handle, ErrorCallback callback);
 
-//    public static native Pointer pahkat_store_config_repos(Pointer handle, ErrorCallback callback);
-//
-//    public static native void pahkat_store_config_set_repos(Pointer handle,
-//                                                            SlicePointer.ByValue repos,
-//                                                            ErrorCallback callback);
-//
+    public static native SlicePointer.ByValue pahkat_config_repos_get(Pointer handle, ErrorCallback callback);
+
+    public static native void pahkat_config_repos_set(Pointer handle,
+                                                      SlicePointer.ByValue repos,
+                                                      ErrorCallback callback);
+
 //    // General utilities
 
     public static native void pahkat_str_free(SlicePointer.ByValue ptr);

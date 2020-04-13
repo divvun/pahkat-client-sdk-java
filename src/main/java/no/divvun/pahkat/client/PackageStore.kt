@@ -6,7 +6,7 @@ import javax.annotation.CheckReturnValue
 
 interface PackageStore<Target> {
     @CheckReturnValue
-    fun config(): Result<StoreConfig>
+    fun config(): Result<Config>
     @CheckReturnValue
     fun repoIndexes(withStatuses: Boolean): Result<Array<RepositoryIndex>>
     @CheckReturnValue

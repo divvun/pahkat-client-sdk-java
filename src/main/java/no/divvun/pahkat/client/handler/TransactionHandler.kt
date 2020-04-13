@@ -16,8 +16,8 @@ enum class PackageTransactionEvent(val value: Byte) {
         fun from(value: Int): PackageTransactionEvent? {
             return when (value) {
                 0 -> NotStarted
-                1 -> Uninstalling
-                2 -> Installing
+                1 -> Installing
+                2 -> Uninstalling
                 3 -> Completed
                 4 -> Error
                 else -> null
@@ -38,19 +38,22 @@ internal val transactionProcessHandler: pahkat_client.TransactionProcessCallback
             return 0
         }
 
-        val cPackageKey = packageKeyStr.decode()
-        if (cPackageKey == null) {
-            delegate.onTransactionError(tag, null, Exception("Invalid package key"))
-            transactionProcessCallbacks.remove(tag)
-            return 0
-        }
-
-        val packageKey = PackageKey.from(cPackageKey)
 
         val event = PackageTransactionEvent.from(cEvent.toInt())
         if (event == null) {
-            delegate.onTransactionUnknownEvent(tag, packageKey, cEvent.toLong())
+            delegate.onTransactionUnknownEvent(tag, cEvent.toLong())
             return if (delegate.isTransactionCancelled(tag)) { 0 } else { 1 }
+        }
+
+        val packageKey = if (packageKeyStr.len.toInt() != 0) {
+            val cPackageKey = packageKeyStr.decode()
+            if (cPackageKey != null) {
+                PackageKey.from(cPackageKey)
+            } else {
+                null
+            }
+        } else {
+            null
         }
 
         when (event) {

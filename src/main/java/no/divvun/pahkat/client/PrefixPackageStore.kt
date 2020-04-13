@@ -29,7 +29,6 @@ class PrefixPackageStore private constructor(private val handle: Pointer) : Pack
     companion object {
         fun open(path: String): Result<PrefixPackageStore> {
             val result = path.withSlice {
-                print(it)
                 pahkat_client.pahkat_prefix_package_store_open(it, errorCallback)
             }
             return assertNoError { PrefixPackageStore(result) }
@@ -37,17 +36,22 @@ class PrefixPackageStore private constructor(private val handle: Pointer) : Pack
 
         fun create(path: String): Result<PrefixPackageStore> {
             val result = path.withSlice {
-                print(it)
                 pahkat_client.pahkat_prefix_package_store_create(it, errorCallback)
+            }
+            return assertNoError { PrefixPackageStore(result) }
+        }
+
+        fun openOrCreate(path: String): Result<PrefixPackageStore> {
+            val result = path.withSlice {
+                pahkat_client.pahkat_prefix_package_store_open_or_create(it, errorCallback)
             }
             return assertNoError { PrefixPackageStore(result) }
         }
     }
 
-    override fun config(): Result<StoreConfig> {
-//        val ptr = pahkat_client.pahkat_prefix_package_store_config(handle, errorCallback)
-//        return assertNoError { StoreConfig(ptr) }
-        throw NotImplementedError()
+    override fun config(): Result<Config> {
+        val ptr = pahkat_client.pahkat_prefix_package_store_config(handle, errorCallback)
+        return assertNoError { Config(ptr) }
     }
 
     override fun repoIndexes(withStatuses: Boolean): Result<Array<RepositoryIndex>> {
@@ -75,14 +79,12 @@ class PrefixPackageStore private constructor(private val handle: Pointer) : Pack
     }
 
     fun status(packageKey: PackageKey): Result<PackageInstallStatus> {
-        val value = packageKey.toString(withQueryParams = false).withSlice {
+        val value = packageKey.toString(withQueryParams = true).withSlice {
             pahkat_client.pahkat_prefix_package_store_status(handle, it, errorCallback)
         }
-        print(value)
 
         return assertNoError {
             val x = PackageInstallStatus.from(value) ?: PackageInstallStatus.InvalidMetadata
-            print(x)
             x
         }
     }
@@ -190,7 +192,8 @@ class PrefixPackageStore private constructor(private val handle: Pointer) : Pack
 
     override fun transaction(actions: List<TransactionAction<Unit>>): Result<PackageTransaction<Unit>> {
         val actionsJson = gson.toJson(actions)
-        println(actionsJson)
+        println("Actions: $actionsJson")
+
         val ptr = actionsJson.withSlice {
             pahkat_client.pahkat_prefix_transaction_new(handle, it, errorCallback)
         }

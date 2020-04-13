@@ -27,7 +27,7 @@ class PackageTransaction<Target> internal constructor(
 
         when (val result = assertNoError { }) {
             is Either.Left -> delegate.onTransactionError(id, null, result.a)
-            is Either.Right -> delegate.onTransactionCompleted(id)
+            is Either.Right -> {}
         }
 
         transactionProcessCallbacks.remove(id)

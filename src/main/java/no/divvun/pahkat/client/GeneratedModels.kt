@@ -89,7 +89,7 @@ private fun createGson(): Gson {
     }
 
     return GsonBuilder()
-        .serializeNulls()
+//        .serializeNulls()
         .registerTypeAdapter(Unit::class.java, object : TypeAdapter<Unit>() {
             override fun write(writer: JsonWriter?, value: Unit?) { writer?.nullValue() }
             override fun read(`in`: JsonReader?) = Unit
