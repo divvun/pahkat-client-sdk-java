@@ -32,7 +32,7 @@ data class PackageKeyParams(
 )
 
 @JsonAdapter(PackageKeyAdapter::class)
-data class PackageKey internal constructor(
+data class PackageKey constructor(
     val repositoryUrl: String,
     val id: String,
     val params: PackageKeyParams
