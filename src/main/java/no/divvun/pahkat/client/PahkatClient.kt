@@ -19,15 +19,15 @@ object PahkatClient {
         pahkat_client.pahkat_enable_logging(level.value)
     }
 
-//    object Android {
-//        @CheckReturnValue
-//        fun init(containerPath: String): Result<Unit> {
-//            containerPath.withSlice {
-//                pahkat_client.pahkat_android_init(it, errorCallback)
-//            }
-//            return assertNoError { }
-//        }
-//    }
+    object Android {
+        @CheckReturnValue
+        fun init(containerPath: String): Result<Unit> {
+            containerPath.withSlice {
+                pahkat_client.pahkat_android_init(it, errorCallback)
+            }
+            return assertNoError { }
+        }
+    }
 }
 
 fun<T> String.withSlice(callback: (SlicePointer.ByValue) -> T): T {
