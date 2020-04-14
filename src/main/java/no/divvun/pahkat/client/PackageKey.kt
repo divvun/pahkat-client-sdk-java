@@ -29,7 +29,7 @@ data class PackageKeyParams(
     val platform: String? = null,
     val version: String? = null,
     val arch: String? = null
-)
+) : Serializable
 
 @JsonAdapter(PackageKeyAdapter::class)
 data class PackageKey constructor(
