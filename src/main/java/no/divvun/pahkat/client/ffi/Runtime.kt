@@ -1,7 +1,7 @@
 package no.divvun.pahkat.client.ffi
 
 import arrow.core.Either
-import arrow.core.Try
+import com.sun.jna.Pointer
 import java.nio.charset.StandardCharsets.UTF_8
 
 private var lastError: String? = null
@@ -13,7 +13,7 @@ fun <T> Result<T>.orThrow(): T {
 }
 
 internal val errorCallback = ErrorCallback { ptr, size ->
-    val bytes = ptr.getByteArray(0, size.toInt())
+    val bytes = ptr.getByteArray(0, Pointer.nativeValue(size).toInt())
     lastError = String(bytes, UTF_8)
 }
 

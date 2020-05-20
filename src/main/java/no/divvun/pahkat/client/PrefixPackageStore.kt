@@ -19,7 +19,7 @@ internal fun SlicePointer.ByValue.string(): String? {
     if (this == Pointer.NULL || this.data == Pointer.NULL) {
         return null
     }
-    val bytes = this.data.getByteArray(0, this.len.toInt())
+    val bytes = this.data.getByteArray(0, Pointer.nativeValue(this.len).toInt())
     val s = String(bytes, UTF_8)
     pahkat_client.pahkat_str_free(this)
     return s

@@ -1,5 +1,6 @@
 package no.divvun.pahkat.client.handler
 
+import com.sun.jna.Pointer
 import no.divvun.pahkat.client.PackageKey
 import no.divvun.pahkat.client.delegate.PackageTransactionDelegate
 import no.divvun.pahkat.client.ffi.SlicePointer
@@ -45,7 +46,7 @@ internal val transactionProcessHandler: pahkat_client.TransactionProcessCallback
             return if (delegate.isTransactionCancelled(tag)) { 0 } else { 1 }
         }
 
-        val packageKey = if (packageKeyStr.len.toInt() != 0) {
+        val packageKey = if (Pointer.nativeValue(packageKeyStr.len).toInt() != 0) {
             val cPackageKey = packageKeyStr.decode()
             if (cPackageKey != null) {
                 PackageKey.from(cPackageKey)

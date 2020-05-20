@@ -9,7 +9,6 @@ enum class PackageInstallStatus constructor(val value: Byte) {
     NotInstalled(0),
     UpToDate(1),
     RequiresUpdate(2),
-    VersionSkipped(3),
 
     // Errors
     NoPackage(-1),
