@@ -80,7 +80,7 @@ data class PackageKey constructor(
         uri.pathSegments = segments
 
         if (withQueryParams) {
-            params.channel?.let { uri.setParameter("platform", it) }
+            params.channel?.let { uri.setParameter("channel", it) }
             params.platform?.let { uri.setParameter("platform", it) }
             params.version?.let { uri.setParameter("version", it) }
             params.arch?.let { uri.setParameter("arch", it) }
