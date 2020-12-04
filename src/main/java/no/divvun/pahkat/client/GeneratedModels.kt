@@ -76,7 +76,7 @@ private fun createGson(): Gson {
 
     class EnumTypeAdapterFactory : TypeAdapterFactory {
         override fun <T> create(gson: Gson, type: TypeToken<T>): TypeAdapter<T>? {
-            if (!(type.rawType.isEnum && (type.rawType.declaredConstructors.firstOrNull()?.parameterCount ?: 0) == 3)) {
+            if (!(type.rawType.isEnum && (type.rawType.declaredConstructors.firstOrNull()?.parameterTypes?.size ?: 0) == 3)) {
                 return null
             }
 
